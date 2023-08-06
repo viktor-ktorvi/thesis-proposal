@@ -21,7 +21,7 @@ from mlpf.loss.torch.metrics.reactive import MeanReactivePowerError, MeanRelativ
 from mlpf.utils.standard_scaler import StandardScaler
 
 
-@hydra.main(version_base=None, config_path=".", config_name="config")
+@hydra.main(version_base=None, config_path="configs", config_name="default")
 def main(cfg):
     wandb.init(project="thesis proposal", mode="online")
 
@@ -41,8 +41,8 @@ def main(cfg):
 
     # Torch dataloaders
 
-    train_loader = DataLoader(data_train, batch_size=cfg.batch_size, shuffle=True)
-    val_loader = DataLoader(data_val, batch_size=cfg.batch_size, shuffle=False)
+    train_loader = DataLoader(data_train, batch_size=cfg.model.batch_size, shuffle=True)
+    val_loader = DataLoader(data_val, batch_size=cfg.model.batch_size, shuffle=False)
 
     train_features = torch.vstack([data.feature_vector for data in data_train])
     train_targets = torch.vstack([data.target_vector for data in data_train])
@@ -61,7 +61,7 @@ def main(cfg):
     )
     model.to(device)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=cfg.learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(), lr=cfg.model.learning_rate)
     criterion = nn.MSELoss()
 
     # Metrics
@@ -100,7 +100,7 @@ def main(cfg):
         MeanLowerReactivePowerError()
     ).to(device)
 
-    progress_bar = tqdm(range(cfg.num_epochs), ascii=True, desc="Training | Validation:")
+    progress_bar = tqdm(range(cfg.model.num_epochs), ascii=True, desc="Training | Validation:")
 
     for epoch in progress_bar:
 
