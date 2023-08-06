@@ -1,0 +1,7 @@
+batch_size: 512
+
+learning_rate: 3.0e-3
+
+name: linear
+
+num_epochs: 1000

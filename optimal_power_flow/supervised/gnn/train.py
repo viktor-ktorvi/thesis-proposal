@@ -1,4 +1,5 @@
 import hydra
+import os
 import torch
 import wandb
 
@@ -20,30 +21,30 @@ from mlpf.loss.torch.metrics.costs import MeanActivePowerCost, MeanRelativeActiv
 from mlpf.loss.torch.metrics.reactive import MeanReactivePowerError, MeanRelativeReactivePowerError
 from mlpf.utils.standard_scaler import StandardScaler
 
+from data.download import download
 from models.gcn import GCN
 
 
-@hydra.main(version_base=None, config_path="configs", config_name="default")
+@hydra.main(version_base=None, config_path=os.path.join(os.getcwd(), "configs"), config_name="default")
 def main(cfg):
     # TODO tags
-    wandb.init(project="thesis proposal", mode="online")
+    wandb.init(project=cfg.wandb.project, mode=cfg.wandb.mode)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Random seeds
-    pyg.seed_everything(cfg.random_seed)
+    pyg.seed_everything(cfg.general.random_seed)
 
-    solved_ppc_list = load_data(cfg.data_path, max_samples=cfg.max_samples)
+    download(path=cfg.data.path, google_drive_url=cfg.data.google_drive_url)
+    solved_ppc_list = load_data(cfg.data.path, max_samples=cfg.general.max_samples)
 
     # ppc -> Data
-    opf_data_list = []
-    for solved_ppc in tqdm(solved_ppc_list, ascii=True, desc="Converting ppcs to data"):
-        opf_data_list.append(OptimalPowerFlowData(solved_ppc).to_pyg_data())
+    opf_data_list = [OptimalPowerFlowData(solved_ppc).to_pyg_data() for solved_ppc in tqdm(solved_ppc_list, ascii=True, desc="Converting ppcs to data")]
 
     for data in opf_data_list:
         data.x[~data.PQVA_mask] = 0.0  # delete the target info from the input features
 
-    data_train, data_val = train_test_split(opf_data_list, test_size=cfg.validation_split, random_state=cfg.random_seed)
+    data_train, data_val = train_test_split(opf_data_list, test_size=cfg.general.validation_split, random_state=cfg.general.random_seed)
 
     # Torch dataloaders
 
