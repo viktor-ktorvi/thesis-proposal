@@ -8,17 +8,10 @@ import torch_geometric as pyg
 
 from sklearn.model_selection import train_test_split
 from torch_geometric.loader import DataLoader
-from torchmetrics import MetricCollection, MeanSquaredError, R2Score
 from tqdm import tqdm
 
 from mlpf.data.data.optimal_power_flow import OptimalPowerFlowData
 from mlpf.data.loading.load_data import load_data
-from mlpf.loss.torch.metrics.active import MeanActivePowerError, MeanRelativeActivePowerError
-from mlpf.loss.torch.metrics.bounds.active import MeanUpperActivePowerError, MeanLowerActivePowerError
-from mlpf.loss.torch.metrics.bounds.reactive import MeanUpperReactivePowerError, MeanLowerReactivePowerError
-from mlpf.loss.torch.metrics.bounds.voltage import MeanUpperVoltageError, MeanLowerVoltageError
-from mlpf.loss.torch.metrics.costs import MeanActivePowerCost, MeanRelativeActivePowerCost
-from mlpf.loss.torch.metrics.reactive import MeanReactivePowerError, MeanRelativeReactivePowerError
 from mlpf.utils.standard_scaler import StandardScaler
 
 from data.download import download
