@@ -22,6 +22,7 @@ from mlpf.loss.torch.metrics.reactive import MeanReactivePowerError, MeanRelativ
 from mlpf.utils.standard_scaler import StandardScaler
 
 from data.download import download
+from utils.metrics import optimal_power_flow_metrics_with_mse_and_r2score
 
 
 @hydra.main(version_base=None, config_path=os.path.join(os.getcwd(), "configs"), config_name="default")
@@ -69,39 +70,8 @@ def main(cfg):
 
     # Metrics
 
-    metrics_train = MetricCollection(
-        MeanSquaredError(),
-        R2Score(num_outputs=output_size),
-        MeanActivePowerError(),
-        MeanRelativeActivePowerError(),
-        MeanReactivePowerError(),
-        MeanRelativeReactivePowerError(),
-        MeanActivePowerCost(),
-        MeanRelativeActivePowerCost(),
-        MeanUpperVoltageError(),
-        MeanLowerVoltageError(),
-        MeanUpperActivePowerError(),
-        MeanLowerActivePowerError(),
-        MeanUpperReactivePowerError(),
-        MeanLowerReactivePowerError()
-    ).to(device)
-
-    metrics_val = MetricCollection(
-        MeanSquaredError(),
-        R2Score(num_outputs=output_size),
-        MeanActivePowerError(),
-        MeanRelativeActivePowerError(),
-        MeanReactivePowerError(),
-        MeanRelativeReactivePowerError(),
-        MeanActivePowerCost(),
-        MeanRelativeActivePowerCost(),
-        MeanUpperVoltageError(),
-        MeanLowerVoltageError(),
-        MeanUpperActivePowerError(),
-        MeanLowerActivePowerError(),
-        MeanUpperReactivePowerError(),
-        MeanLowerReactivePowerError()
-    ).to(device)
+    metrics_train = optimal_power_flow_metrics_with_mse_and_r2score(output_size).to(device)
+    metrics_val = optimal_power_flow_metrics_with_mse_and_r2score(output_size).to(device)
 
     progress_bar = tqdm(range(cfg.model.num_epochs), ascii=True, desc="Training | Validation:")
 
