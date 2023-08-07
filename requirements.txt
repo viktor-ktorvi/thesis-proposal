@@ -19,3 +19,4 @@ torchvision==0.15.2+cu117
 tqdm==4.65.0
 torchmetrics~=0.11.4
 wandb==0.15.7
+gdown~=4.7.1
