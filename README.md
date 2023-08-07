@@ -25,3 +25,9 @@ Train a GCN:
 ```
 python -m optimal_power_flow.supervised.gnn.train model=gcn
 ```
+
+Run a wandb sweep:
+
+```
+wandb sweep .\optimal_power_flow\supervised\sweep_configs\linear.yaml
+```

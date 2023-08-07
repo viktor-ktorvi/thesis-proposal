@@ -5,6 +5,7 @@ import wandb
 
 import torch.nn as nn
 import torch_geometric as pyg
+from omegaconf import OmegaConf
 
 from sklearn.model_selection import train_test_split
 from torch_geometric.loader import DataLoader
@@ -23,6 +24,12 @@ from utils.metrics import optimal_power_flow_metrics_with_mse_and_r2score
 def main(cfg):
     # TODO tags
     wandb.init(project=cfg.wandb.project, mode=cfg.wandb.mode)
+
+    # update hydra config with wandb config
+    cfg = OmegaConf.merge(cfg, dict(wandb.config))
+
+    # update wandb config with hydra config so that the complete config goes to the run info
+    wandb.config.update({"config": OmegaConf.to_container(cfg, resolve=True, throw_on_missing=True)}, allow_val_change=True)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
