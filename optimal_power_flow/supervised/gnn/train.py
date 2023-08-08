@@ -17,7 +17,9 @@ from mlpf.utils.standard_scaler import StandardScaler
 
 from data.download import download
 from models.gcn import GCN
+from utils.logging import collect_log
 from utils.metrics import optimal_power_flow_metrics_with_mse_and_r2score
+from utils.progress_bar import CustomProgressBar
 
 
 @hydra.main(version_base=None, config_path=os.path.join(os.getcwd(), "configs"), config_name="default")
@@ -78,9 +80,10 @@ def main(cfg):
     metrics_train = optimal_power_flow_metrics_with_mse_and_r2score(output_size).to(device)
     metrics_val = optimal_power_flow_metrics_with_mse_and_r2score(output_size).to(device)
 
-    progress_bar = tqdm(range(cfg.model.num_epochs), ascii=True, desc="Training | Validation:")
+    # if running from the IDE console, make sure to select 'emulate terminal' in the run configuration, otherwise the output will look bad
+    progress_bar = CustomProgressBar(metrics_train.keys(), total=cfg.model.num_epochs)
 
-    for epoch in progress_bar:
+    for epoch in range(cfg.model.num_epochs):
 
         # Training
         model.train()
@@ -108,24 +111,9 @@ def main(cfg):
 
                 metrics_val(preds=predictions, target=output_scaler(batch.target_vector), power_flow_predictions=output_scaler.inverse(predictions), batch=batch)
 
-        overall_metrics_train = metrics_train.compute()
-        overall_metrics_val = metrics_val.compute()
+        progress_bar.update(metrics_train, metrics_val)
 
-        # logging
-        description = "Training | Validation:"
-        logs = {}
-        for key in overall_metrics_train.keys():
-            unit = getattr(metrics_train[key], 'unit', None)  # get metric unit if it exists
-            unit_in_brackets = f" [{unit}]" if unit is not None else ''
-            log_unit = unit_in_brackets.replace("/", " per ")
-
-            logs[f"train/{key}{log_unit}"] = overall_metrics_train[key]
-            logs[f"val/{key}{log_unit}"] = overall_metrics_val[key]
-
-            description += f" {key}{unit_in_brackets}: ({overall_metrics_train[key]:2.4f} | {overall_metrics_val[key]:2.4f});"
-
-        wandb.log(logs)
-        progress_bar.set_description(description)
+        wandb.log(collect_log(metrics_train, metrics_val))
 
         metrics_train.reset()
         metrics_val.reset()

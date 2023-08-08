@@ -18,6 +18,7 @@ from mlpf.utils.standard_scaler import StandardScaler
 from data.download import download
 from utils.logging import collect_log, clean_metric_name
 from utils.metrics import optimal_power_flow_metrics_with_mse_and_r2score
+from utils.progress_bar import CustomProgressBar
 
 
 @hydra.main(version_base=None, config_path=os.path.join(os.getcwd(), "configs"), config_name="default")
@@ -74,20 +75,9 @@ def main(cfg):
     metrics_train = optimal_power_flow_metrics_with_mse_and_r2score(output_size).to(device)
     metrics_val = optimal_power_flow_metrics_with_mse_and_r2score(output_size).to(device)
 
-    metric_value_width = 15
-    metric_name_width = 50
-    metric_value_decimals = 7
-    description_width = 100
-    # TODO all this formatting will have to be its own function;
-    print(f"\n{'Training':^{metric_value_width}} | {'Validation':^{metric_value_width}} {'Metric':{metric_name_width}} Unit\n")
-
     # if running from the IDE console, make sure to select 'emulate terminal' in the run configuration, otherwise the output will look bad
-    progress_bars: dict = {
-        key: value for key, value in zip(
-            metrics_train,
-            [tqdm(total=cfg.model.num_epochs, position=i) for i in range(len(metrics_train))]
-        )
-    }
+    progress_bar = CustomProgressBar(metrics_train.keys(), total=cfg.model.num_epochs)
+
     for epoch in range(cfg.model.num_epochs):
 
         # Training
@@ -118,18 +108,7 @@ def main(cfg):
 
                 metrics_val(preds=predictions, target=output_scaler(targets), power_flow_predictions=output_scaler.inverse(predictions), batch=batch)
 
-        overall_metrics_train = metrics_train.compute()
-        overall_metrics_val = metrics_val.compute()
-
-        # logging
-        for key in overall_metrics_train.keys():
-            unit = getattr(metrics_train[key], 'unit', None)  # get metric unit if it exists
-            unit_in_brackets = f" [{unit}]" if unit is not None else ''
-
-            description = f"{overall_metrics_train[key]:^{metric_value_width}.{metric_value_decimals}f} | {overall_metrics_val[key]:^{metric_value_width}.{metric_value_decimals}f} {clean_metric_name(key):{metric_name_width}}{unit_in_brackets}"
-
-            progress_bars[key].set_description(f"{description:{description_width}}")
-            progress_bars[key].update(1)
+        progress_bar.update(metrics_train, metrics_val)
 
         wandb.log(collect_log(metrics_train, metrics_val))
 
