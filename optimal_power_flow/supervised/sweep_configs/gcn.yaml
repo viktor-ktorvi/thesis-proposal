@@ -1,0 +1,38 @@
+program: optimal_power_flow.supervised.gnn.train
+method: grid
+
+# how to structure the hierarchy: https://community.wandb.ai/t/nested-sweep-configuration/3369/2
+
+parameters:
+  model:
+    parameters:
+      learning_rate:
+        values:
+          - 3.0e-4
+          - 3.0e-3
+          - 3.0e-2
+          - 3.0e-1
+
+      hidden_channels:
+        values:
+          - 10
+          - 50
+          - 150
+
+      num_layers:
+        values:
+          - 1
+          - 4
+          - 7
+          - 10
+          - 13
+          - 16
+command:
+  - ${env}
+  - ${interpreter}
+  - "-m"
+  - ${program}
+  - model=gcn
+
+name: opf supervised linear
+
