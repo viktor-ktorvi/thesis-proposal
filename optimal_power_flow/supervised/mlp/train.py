@@ -16,6 +16,7 @@ from mlpf.data.loading.load_data import load_data
 from mlpf.utils.standard_scaler import StandardScaler
 
 from data.download import download
+from utils.logging import collect_log, clean_metric_name
 from utils.metrics import optimal_power_flow_metrics_with_mse_and_r2score
 
 
@@ -73,9 +74,21 @@ def main(cfg):
     metrics_train = optimal_power_flow_metrics_with_mse_and_r2score(output_size).to(device)
     metrics_val = optimal_power_flow_metrics_with_mse_and_r2score(output_size).to(device)
 
-    progress_bar = tqdm(range(cfg.model.num_epochs), ascii=True, desc="Training | Validation:")
+    metric_value_width = 15
+    metric_name_width = 50
+    metric_value_decimals = 7
+    description_width = 100
+    # TODO all this formatting will have to be its own function;
+    print(f"\n{'Training':^{metric_value_width}} | {'Validation':^{metric_value_width}} {'Metric':{metric_name_width}} Unit\n")
 
-    for epoch in progress_bar:
+    # if running from the IDE console, make sure to select 'emulate terminal' in the run configuration, otherwise the output will look bad
+    progress_bars: dict = {
+        key: value for key, value in zip(
+            metrics_train,
+            [tqdm(total=cfg.model.num_epochs, position=i) for i in range(len(metrics_train))]
+        )
+    }
+    for epoch in range(cfg.model.num_epochs):
 
         # Training
         model.train()
@@ -109,20 +122,16 @@ def main(cfg):
         overall_metrics_val = metrics_val.compute()
 
         # logging
-        description = "Training | Validation:"
-        logs = {}
         for key in overall_metrics_train.keys():
             unit = getattr(metrics_train[key], 'unit', None)  # get metric unit if it exists
             unit_in_brackets = f" [{unit}]" if unit is not None else ''
-            log_unit = unit_in_brackets.replace("/", " per ")
 
-            logs[f"train/{key}{log_unit}"] = overall_metrics_train[key]
-            logs[f"val/{key}{log_unit}"] = overall_metrics_val[key]
+            description = f"{overall_metrics_train[key]:^{metric_value_width}.{metric_value_decimals}f} | {overall_metrics_val[key]:^{metric_value_width}.{metric_value_decimals}f} {clean_metric_name(key):{metric_name_width}}{unit_in_brackets}"
 
-            description += f" {key}{unit_in_brackets}: ({overall_metrics_train[key]:2.4f} | {overall_metrics_val[key]:2.4f});"
+            progress_bars[key].set_description(f"{description:{description_width}}")
+            progress_bars[key].update(1)
 
-        wandb.log(logs)
-        progress_bar.set_description(description)
+        wandb.log(collect_log(metrics_train, metrics_val))
 
         metrics_train.reset()
         metrics_val.reset()
