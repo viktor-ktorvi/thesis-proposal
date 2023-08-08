@@ -34,5 +34,5 @@ command:
   - ${program}
   - model=gcn
 
-name: opf supervised linear
+name: opf supervised gcn
 
