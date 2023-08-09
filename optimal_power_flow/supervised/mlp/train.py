@@ -5,8 +5,8 @@ import wandb
 
 import torch.nn as nn
 import torch_geometric as pyg
-from omegaconf import OmegaConf
 
+from omegaconf import OmegaConf
 from sklearn.model_selection import train_test_split
 from torch_geometric.loader import DataLoader
 from tqdm import tqdm
@@ -16,7 +16,7 @@ from mlpf.data.loading.load_data import load_data
 from mlpf.utils.standard_scaler import StandardScaler
 
 from data.download import download
-from utils.logging import collect_log, clean_metric_name
+from utils.logging import collect_log
 from utils.metrics import optimal_power_flow_metrics_with_mse_and_r2score
 from utils.progress_bar import CustomProgressBar
 

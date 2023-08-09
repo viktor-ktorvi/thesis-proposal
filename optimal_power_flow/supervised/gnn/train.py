@@ -5,8 +5,8 @@ import wandb
 
 import torch.nn as nn
 import torch_geometric as pyg
-from omegaconf import OmegaConf
 
+from omegaconf import OmegaConf
 from sklearn.model_selection import train_test_split
 from torch_geometric.loader import DataLoader
 from tqdm import tqdm
