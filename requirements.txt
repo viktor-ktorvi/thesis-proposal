@@ -1,6 +1,6 @@
 hydra-core==1.3.2
 matplotlib==3.7.1
-mlpf==0.0.8
+mlpf==0.0.9
 numpy==1.24.3
 omegaconf==2.3.0
 pandapower==2.12.1

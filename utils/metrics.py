@@ -6,7 +6,7 @@ from mlpf.loss.torch.metrics.bounds.reactive import MeanUpperReactivePowerError,
 from mlpf.loss.torch.metrics.bounds.voltage import MeanUpperVoltageError, MeanLowerVoltageError
 from mlpf.loss.torch.metrics.costs import MeanActivePowerCost, MeanRelativeActivePowerCost
 from mlpf.loss.torch.metrics.reactive import MeanReactivePowerError, MeanRelativeReactivePowerError
-from torchmetrics import MetricCollection, MeanSquaredError, R2Score, Metric
+from torchmetrics import MetricCollection, MeanSquaredError, R2Score
 
 
 def _get_pf_metrics() -> List:
@@ -59,7 +59,7 @@ def optimal_power_flow_metrics_with_mse() -> MetricCollection:
     return MetricCollection(*combined_metrics)
 
 
-def optimal_power_flow_metrics_with_mse_and_r2score(num_outputs: int):
+def optimal_power_flow_metrics_with_mse_and_r2score(num_outputs: int) -> MetricCollection:
     """
     :return: Return combined PF and OPF + MSE + R2Score metric collection.
     """
