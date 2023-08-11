@@ -17,6 +17,7 @@ from mlpf.utils.progress_bar import CustomProgressBar
 from mlpf.utils.standard_scaler import StandardScaler
 
 from data.download import download
+from models.mlp.get_model import get_model
 from utils.logging import collect_log
 from utils.metrics import optimal_power_flow_metrics_with_mse_and_r2score
 
@@ -45,32 +46,26 @@ def main(cfg):
 
     data_train, data_val = train_test_split(opf_data_list, test_size=cfg.general.validation_split, random_state=cfg.general.random_seed)
 
-    # Torch dataloaders
-
     train_loader = DataLoader(data_train, batch_size=cfg.model.batch_size, shuffle=True)
     val_loader = DataLoader(data_val, batch_size=cfg.model.batch_size, shuffle=False)
 
-    train_features = torch.vstack([data.feature_vector for data in data_train])
+    # Output scaler
+
     train_targets = torch.vstack([data.target_vector for data in data_train])
 
     # scale the targets because the different grid state values are at different orders of magnitude
     output_scaler = StandardScaler(train_targets)
     output_scaler.to(device)
 
-    input_size = data_train[0].feature_vector.shape[1]
-    output_size = data_train[0].target_vector.shape[1]
-
     # Model
-    model = nn.Sequential(
-        StandardScaler(train_features),
-        nn.Linear(in_features=input_size, out_features=output_size),
-    )
+    model = get_model(cfg.model, data_train)
     model.to(device)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=cfg.model.learning_rate)
     criterion = nn.MSELoss()
 
     # Metrics
+    output_size = data_train[0].target_vector.shape[1]
 
     metrics_train = optimal_power_flow_metrics_with_mse_and_r2score(output_size).to(device)
     metrics_val = optimal_power_flow_metrics_with_mse_and_r2score(output_size).to(device)

@@ -17,7 +17,7 @@ from mlpf.utils.progress_bar import CustomProgressBar
 from mlpf.utils.standard_scaler import StandardScaler
 
 from data.download import download
-from models.gcn import GCN
+from models.gnn.get_model import get_model
 from utils.logging import collect_log
 from utils.metrics import optimal_power_flow_metrics_with_mse_and_r2score
 
@@ -49,33 +49,26 @@ def main(cfg):
 
     data_train, data_val = train_test_split(opf_data_list, test_size=cfg.general.validation_split, random_state=cfg.general.random_seed)
 
-    # Torch dataloaders
-
     train_loader = DataLoader(data_train, batch_size=cfg.model.batch_size, shuffle=True)
     val_loader = DataLoader(data_val, batch_size=cfg.model.batch_size, shuffle=False)
 
-    node_features_stacked = torch.vstack([data.x for data in data_train])
+    # Output scaling
     train_targets = torch.vstack([data.target_vector for data in data_train])
-
-    output_size = train_targets.shape[1]
 
     output_scaler = StandardScaler(train_targets)
     output_scaler.to(device)
 
     # Model
 
-    standard_scaler = StandardScaler(node_features_stacked)
-    model = GCN(in_channels=node_features_stacked.shape[1],
-                hidden_channels=cfg.model.hidden_channels,
-                num_layers=cfg.model.num_layers,
-                out_channels=data_train[0].PQVA_matrix.shape[1],
-                standard_scaler=standard_scaler)
+    model = get_model(cfg.model, data_train)
     model.to(device)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=cfg.model.learning_rate)
     criterion = nn.MSELoss()
 
     # Metrics
+
+    output_size = train_targets.shape[1]
 
     metrics_train = optimal_power_flow_metrics_with_mse_and_r2score(output_size).to(device)
     metrics_val = optimal_power_flow_metrics_with_mse_and_r2score(output_size).to(device)
