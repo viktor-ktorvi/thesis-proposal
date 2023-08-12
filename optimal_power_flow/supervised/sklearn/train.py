@@ -4,10 +4,7 @@ import random
 
 import numpy as np
 
-from sklearn.linear_model import Ridge
 from sklearn.model_selection import train_test_split
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
 from mlpf.data.data.optimal_power_flow import OptimalPowerFlowData
@@ -22,6 +19,7 @@ from mlpf.loss.numpy.metrics.reactive import ReactivePowerError, RelativeReactiv
 from mlpf.utils.description_format import format_description
 
 from data.download import download
+from models.sklearn.get_model import get_model
 
 
 @hydra.main(version_base=None, config_path=os.path.join(os.getcwd(), "configs"), config_name="default")
@@ -46,8 +44,7 @@ def main(cfg):
 
     # Model
 
-    backbone = Ridge()
-    model = make_pipeline(StandardScaler(), backbone)
+    model = get_model(cfg.model)
     model.fit(features_train, targets_train)
 
     # Evaluation
@@ -56,8 +53,8 @@ def main(cfg):
 
     power_metrics = MultipleMetrics(
         ActivePowerError(),
-        ReactivePowerError(),
         RelativeActivePowerError(),
+        ReactivePowerError(),
         RelativeReactivePowerError(),
         ActivePowerCost(),
         RelativeActivePowerCost(),
