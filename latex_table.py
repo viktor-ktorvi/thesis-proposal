@@ -9,5 +9,5 @@ table_text = df.to_latex(
     float_format="{:.1f}".format,
 )
 
-with open("latex/table.tex", "w") as file:
+with open("latex_example/table.tex", "w") as file:
     file.write(table_text)
