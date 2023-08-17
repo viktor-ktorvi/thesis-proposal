@@ -11,12 +11,12 @@ from matplotlib import pyplot as plt
 def main(cfg):
     api = wandb.Api()
 
-    sweep_path = "viktor-ktorvi/thesis_proposal/sccre6n1"
+    sweep_path = "viktor-ktorvi/thesis-proposal/r4ised6c"
     sweep = api.sweep(sweep_path)
     xy_values = {}
 
     config_parameter_key = "num_layers"
-    metric_key = "val/mean squared error"
+    metric_key = "val/r2 score"
     for run in sweep.runs:
         config = json.loads(run.json_config)
         config_parameter = config['config']['value']['model'][config_parameter_key]
@@ -30,9 +30,11 @@ def main(cfg):
     pprint(xy_values)
 
     for x in xy_values:
-        xy_values[x] = min(xy_values[x])
+        xy_values[x] = max(xy_values[x])
 
     pprint(xy_values)
+
+    xy_values = dict(sorted(xy_values.items()))
 
     plt.figure()
     plt.plot(xy_values.keys(), xy_values.values())
