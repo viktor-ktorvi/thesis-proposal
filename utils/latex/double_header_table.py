@@ -5,6 +5,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from pylatex import MultiColumn, MultiRow, Tabular, NoEscape
+from pylatex.utils import bold
 
 from utils.latex.metrics import expected_relative_absolute_error, expected_error, max_relative_absolute_error, max_error, inline_math
 
@@ -49,8 +50,7 @@ def double_header_table(first_columns_names: List[str],
                         small_column_names: List[str],
                         content: List[NDArray],
                         last_columns_names: List[str] = (),
-                        last_columns_contents: List[List[str]] = (),
-                        num_decimals: int = 3) -> str:
+                        last_columns_contents: List[List[str]] = ()) -> str:
     """
     Create the double header table how I like it.
 
@@ -61,7 +61,6 @@ def double_header_table(first_columns_names: List[str],
     :param content: The row content of the middle part. Separated into sub-lists for each of the larger columns.
     :param last_columns_names: Names of the columns that go after the middle part. Part of the header. Height is doubled.
     :param last_columns_contents: The rows of the last columns.
-    :param num_decimals: Number of decimals to round the content to. TODO might delegate this to the outer scope.
     :return: The raw latex code for the table.
     """
     # first columns
@@ -115,7 +114,9 @@ def double_header_table(first_columns_names: List[str],
 
         content_row_values = []
         for j in range(num_large_columns):
-            content_row_values += [f"{content[j][i, k]:.{num_decimals}f}" for k in range(content[j].shape[1])]
+            content_row_values += content[j][i, :].tolist()
+
+        content_row_values = [NoEscape(value) for value in content_row_values]
 
         last_columns_row_values = [last_columns_contents[j][i] for j in range(num_last_columns)]
 
@@ -135,6 +136,9 @@ def main():
     small_column_names = [NoEscape("MLP$_{global}$"), "GCN", "GAT",
                           NoEscape("MLP$_{local}$"), "GCN", "GAT"]
 
+    # TODO these functions could have and inline=True arg
+    #  the metrics could be a dataclass that have fields like symbol, lower_is_better, unit...
+    #  or the mlpf.torch.metrics could have latex representations, but probably not
     metric_names = [
         inline_math(expected_relative_absolute_error("P")),
         inline_math(expected_relative_absolute_error("Q")),
@@ -146,7 +150,27 @@ def main():
 
     num_decimals = 3
 
-    data_tables = [np.random.randn(len(metric_names), len(small_column_names) // len(large_column_names)) for _ in range(len(large_column_names))]
+    data_subsections = [np.random.randn(len(metric_names), len(small_column_names) // len(large_column_names)) for _ in range(len(large_column_names))]
+
+    # TODO functional decomposition
+
+    # create masks
+    masks = []
+    for i in range(len(data_subsections)):
+        msk = np.zeros(data_subsections[i].shape, dtype=bool)
+
+        # TODO instead of arange, there could be other indices and in this way you could apply min to some rows and max to others
+        msk[np.arange(msk.shape[0]), np.argmin(data_subsections[i], axis=1)] = True
+
+        masks.append(msk)
+
+    # round and turn to string
+    for i in range(len(data_subsections)):
+        data_subsections[i] = data_subsections[i].round(num_decimals).astype(str)
+
+    # apply masks
+    for i in range(len(data_subsections)):
+        data_subsections[i][masks[i]] = np.vectorize(bold)(data_subsections[i][masks[i]])
 
     first_column_names = ["Metric"]
     first_columns_content = [metric_names]
@@ -163,8 +187,7 @@ def main():
                                       small_column_names=small_column_names,
                                       last_columns_names=last_columns_names,
                                       last_columns_contents=last_columns_contents,
-                                      content=data_tables,
-                                      num_decimals=num_decimals)
+                                      content=data_subsections)
     print(latex_table)
 
     with open("latex_example/table_with_two_headers/main.tex", "w") as f:
