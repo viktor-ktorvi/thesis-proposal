@@ -51,6 +51,19 @@ def double_header_table(first_columns_names: List[str],
                         last_columns_names: List[str] = (),
                         last_columns_contents: List[List[str]] = (),
                         num_decimals: int = 3) -> str:
+    """
+    Create the double header table how I like it.
+
+    :param first_columns_names: Names of the first columns before the actual content. Part of the header. Height is doubled.
+    :param first_columns_content: The rows of the first columns.
+    :param large_column_names: The upper and wider part of the middle header underneath which the content goes.
+    :param small_column_names: The lower and narrower part of the middle header.
+    :param content: The row content of the middle part. Separated into sub-lists for each of the larger columns.
+    :param last_columns_names: Names of the columns that go after the middle part. Part of the header. Height is doubled.
+    :param last_columns_contents: The rows of the last columns.
+    :param num_decimals: Number of decimals to round the content to. TODO might delegate this to the outer scope.
+    :return: The raw latex code for the table.
+    """
     # first columns
     num_first_columns = len(first_columns_names)
     assert len(first_columns_content) == num_first_columns
@@ -68,8 +81,9 @@ def double_header_table(first_columns_names: List[str],
     assert len(last_columns_contents) == num_last_columns
 
     # height
-    # TODO could check content as well
     content_height = len(first_columns_content[0])
+    for sub_content in content:
+        assert sub_content.shape[0] == content_height
 
     for column in first_columns_content:
         assert len(column) == content_height
