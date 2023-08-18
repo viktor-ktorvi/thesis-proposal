@@ -1,5 +1,5 @@
 from pylatex import Document, Tabular, MultiColumn, LineBreak, NewLine
-from utils.latex.double_header_table import content_columns_alignment
+from utils.latex.double_header_table import middle_columns_alignment
 
 doc = Document()
 
@@ -17,7 +17,7 @@ table1.add_hline()
 
 num_large_columns = 2
 num_small_columns_per_large = 3
-table2 = Tabular("|c|" + content_columns_alignment(num_small_columns=num_large_columns * num_small_columns_per_large, num_large_columns=num_large_columns))
+table2 = Tabular("|c|" + middle_columns_alignment(num_small_columns=num_large_columns * num_small_columns_per_large, num_large_columns=num_large_columns))
 table2.add_row(("Metric", MultiColumn(num_small_columns_per_large, data='Multicolumn1'), MultiColumn(num_small_columns_per_large, data='Multicolumn2')))
 
 doc.append(table1)
