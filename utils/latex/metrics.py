@@ -2,7 +2,7 @@ from pylatex import NoEscape, Command
 
 
 def abs_brackets(symbol: str) -> NoEscape:
-    return NoEscape(f"|{symbol}|")
+    return NoEscape(f"\\Bigl|{symbol}\\Bigr|")
 
 
 def error(symbol: str) -> NoEscape:
