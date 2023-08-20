@@ -21,13 +21,8 @@ def get_model(model_cfg: DictConfig, data_train: List[Data]) -> nn.Module:
     node_features_stacked = torch.vstack([data.x for data in data_train])
 
     if model_cfg.name == "gcn":
-        return GCN(
-            in_channels=data_train[0].x.shape[1],
-            hidden_channels=model_cfg.hidden_channels,
-            num_layers=model_cfg.num_layers,
-            out_channels=data_train[0].PQVA_matrix.shape[1],
-            standard_scaler=StandardScaler(node_features_stacked)
-        )
+        return GCN(in_channels=data_train[0].x.shape[1], hidden_channels=model_cfg.hidden_channels, num_layers=model_cfg.num_layers,
+                   out_channels=data_train[0].PQVA_matrix.shape[1], standard_scaler=StandardScaler(node_features_stacked), jumping_knowledge=model_cfg.jumping_knowledge)
 
     else:
         raise ValueError(f"Model '{model_cfg.name}' is not supported.")

@@ -5,7 +5,7 @@ from torch import nn
 
 
 class GCN(torch.nn.Module):
-    def __init__(self, in_channels, hidden_channels, num_layers, out_channels, standard_scaler):
+    def __init__(self, in_channels: int, hidden_channels: int, num_layers: int, out_channels: int, standard_scaler: torch.nn.Module, jumping_knowledge: str = None):
         super(GCN, self).__init__()
         self.standard_scaler = standard_scaler
 
@@ -13,7 +13,8 @@ class GCN(torch.nn.Module):
             in_channels=in_channels,
             hidden_channels=hidden_channels,
             num_layers=num_layers,
-            out_channels=hidden_channels
+            out_channels=hidden_channels,
+            jk=jumping_knowledge
         )
 
         self.linear = nn.Linear(in_features=hidden_channels, out_features=out_channels)

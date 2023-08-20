@@ -1,11 +1,13 @@
 batch_size: 512
 
-hidden_channels: 150
+hidden_channels: 300
 
-learning_rate: 3.0e-3
+learning_rate: 5.0e-3
 
 name: gcn
 
 num_epochs: 1000
 
-num_layers: 7
+num_layers: 5
+
+jumping_knowledge: null

@@ -9,9 +9,8 @@ parameters:
     parameters:
       learning_rate:
         values:
-          - 1.0e-3
           - 5.0e-3
-          - 1.0e-2
+          - 5.0e-2
 
       hidden_channels:
         values:
@@ -28,6 +27,12 @@ parameters:
           - 20
           - 30
           - 40
+
+      jumping_knowledge:
+        values:
+          - "cat"
+          - "max"
+          - "lstm"
 command:
   - ${env}
   - ${interpreter}
@@ -35,5 +40,5 @@ command:
   - ${program}
   - model=gcn
 
-name: opf supervised gcn num layers effect
+name: opf supervised gcn jumping knowledge num layers effect
 
