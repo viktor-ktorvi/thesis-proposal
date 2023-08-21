@@ -5,22 +5,19 @@ from torchmetrics import MetricCollection
 from mlpf.utils.logging import clean_metric_name, get_unit
 
 
-def collect_log(metrics_train: MetricCollection, metrics_val: MetricCollection) -> Dict:
+def collect_log(metrics: MetricCollection, subcategory: str) -> Dict:
     """
-    Collect the metric values for logging.
-
-    :param metrics_train: Train metric collection.
-    :param metrics_val: Validation metric collection.
-    :return: Dictionary of logs.
+    Collect metrics in a dictionary, generate clean names for the metrics and add the units.
+    :param metrics: Metric collection.
+    :param subcategory: The subcategory of logs in wandb to be appended to the name like: 'subcategory/name'.
+    :return:
     """
     logs = {}
 
-    overall_metrics_train = metrics_train.compute()
-    overall_metrics_val = metrics_val.compute()
-    for key in overall_metrics_train.keys():
-        log_unit = get_unit(metrics_train[key]).replace("/", " per ")
+    overall_metrics = metrics.compute()
+    for key in overall_metrics.keys():
+        log_unit = get_unit(metrics[key]).replace("/", " per ")
 
-        logs[f"train/{clean_metric_name(key)}{log_unit}"] = overall_metrics_train[key]
-        logs[f"val/{clean_metric_name(key)}{log_unit}"] = overall_metrics_val[key]
+        logs[f"{subcategory}/{clean_metric_name(key)}{log_unit}"] = overall_metrics[key]
 
     return logs

@@ -9,6 +9,7 @@ import torch_geometric as pyg
 from omegaconf import OmegaConf
 from sklearn.model_selection import train_test_split
 from torch_geometric.loader import DataLoader
+from torchmetrics import MetricCollection
 from tqdm import tqdm
 
 from mlpf.data.data.optimal_power_flow import OptimalPowerFlowData
@@ -19,7 +20,7 @@ from mlpf.utils.standard_scaler import StandardScaler
 from data.download import download
 from models.gnn.get_model import get_model
 from utils.logging import collect_log
-from utils.metrics import optimal_power_flow_metrics_with_mse_and_r2score
+from utils.metric_lists.supervised import train_metrics, val_metrics, full_evaluation_metrics
 
 
 @hydra.main(version_base=None, config_path=os.path.join(os.getcwd(), "configs"), config_name="default")
@@ -70,11 +71,22 @@ def main(cfg):
 
     output_size = train_targets.shape[1]
 
-    metrics_train = optimal_power_flow_metrics_with_mse_and_r2score(output_size).to(device)
-    metrics_val = optimal_power_flow_metrics_with_mse_and_r2score(output_size).to(device)
+    metrics_train = train_metrics(output_size).to(device)
+    metrics_val = val_metrics(output_size).to(device)
+    metrics_final_evaluation = full_evaluation_metrics(output_size).to(device)
 
     # if running from the IDE console, make sure to select 'emulate terminal' in the run configuration, otherwise the output will look bad
     progress_bar = CustomProgressBar(metrics_train.keys(), total=cfg.model.num_epochs)
+
+    def validation(metrics: MetricCollection):
+        with torch.no_grad():
+            model.eval()
+            for batch in val_loader:
+                batch = batch.to(device)
+
+                predictions = model(batch)
+
+                metrics(preds=predictions, target=output_scaler(batch.target_vector), power_flow_predictions=output_scaler.inverse(predictions), batch=batch)
 
     for epoch in range(cfg.model.num_epochs):
 
@@ -94,22 +106,24 @@ def main(cfg):
             optimizer.step()
 
         # Validation
-        with torch.no_grad():
-
-            model.eval()
-            for batch in val_loader:
-                batch = batch.to(device)
-
-                predictions = model(batch)
-
-                metrics_val(preds=predictions, target=output_scaler(batch.target_vector), power_flow_predictions=output_scaler.inverse(predictions), batch=batch)
+        validation(metrics_val)
 
         progress_bar.update(metrics_train, metrics_val)
 
-        wandb.log(collect_log(metrics_train, metrics_val))
+        wandb.log(collect_log(metrics_train, subcategory="train") | collect_log(metrics_val, subcategory="val"), step=epoch)
 
         metrics_train.reset()
         metrics_val.reset()
+
+        # Evaluation on more metrics from time to time
+        if epoch % round(cfg.model.num_epochs * cfg.general.full_evaluation_ratio) == 0:
+            validation(metrics_final_evaluation)
+            wandb.log(collect_log(metrics_final_evaluation, subcategory="eval"), step=epoch)
+            metrics_final_evaluation.reset()
+
+    # one final evaluation
+    validation(metrics_final_evaluation)
+    wandb.log(collect_log(metrics_final_evaluation, subcategory="eval"), step=cfg.model.num_epochs)
 
 
 if __name__ == '__main__':
