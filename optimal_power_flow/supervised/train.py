@@ -98,8 +98,8 @@ def main(cfg):
 
             # optimizing the scaled results difference could lead to nicer gradients in my experience
             loss = criterion(
-                model.output_scaler(PQVA_prediction),
-                model.output_scaler(batch.PQVA_matrix)
+                model.scale_output(PQVA_prediction, batch),
+                model.scale_output(batch.PQVA_matrix, batch)
             )
             loss.backward()
 

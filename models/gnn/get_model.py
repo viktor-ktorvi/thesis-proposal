@@ -8,6 +8,7 @@ from torch import nn
 from torch_geometric.data import Data
 
 from models.gnn.gcn import GCN
+from models.gnn.mlp_global import LinearGlobal
 
 
 def get_model(model_cfg: DictConfig, data_train: List[Data]) -> nn.Module:
@@ -21,6 +22,9 @@ def get_model(model_cfg: DictConfig, data_train: List[Data]) -> nn.Module:
     node_features_stacked = torch.vstack([data.x for data in data_train])
     node_targets_stacked = torch.vstack([data.PQVA_matrix for data in data_train])
 
+    global_features_stacked = torch.vstack([data.feature_vector for data in data_train])
+    global_targets_stacked = torch.vstack([data.target_vector for data in data_train])
+
     if model_cfg.name == "gcn":
         return GCN(
             in_channels=data_train[0].x.shape[1],
@@ -30,6 +34,14 @@ def get_model(model_cfg: DictConfig, data_train: List[Data]) -> nn.Module:
             input_scaler=StandardScaler(node_features_stacked),
             output_scaler=StandardScaler(node_targets_stacked),
             jumping_knowledge=model_cfg.jumping_knowledge
+        )
+
+    elif model_cfg.name == "linear":
+        return LinearGlobal(
+            input_size=global_features_stacked.shape[1],
+            output_size=global_targets_stacked.shape[1],
+            input_scaler=StandardScaler(global_features_stacked),
+            output_scaler=StandardScaler(global_targets_stacked)
         )
 
     else:

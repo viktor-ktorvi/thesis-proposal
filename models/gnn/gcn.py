@@ -1,17 +1,15 @@
 import torch
 import torch_geometric as pyg
 
-from torch import nn
+from torch import nn, Tensor
 
 from mlpf.utils.standard_scaler import StandardScaler
+from torch_geometric.data import Data
 
 
 class GCN(torch.nn.Module):
     """
-    GCN model:
-
-    x(Nxf_in)->input_scaler->GCN->linear->output(Nxf_out)->output_scaler->PQVA_prediction
-
+    A GCN model.
     """
 
     def __init__(self,
@@ -23,6 +21,7 @@ class GCN(torch.nn.Module):
                  output_scaler: StandardScaler,
                  jumping_knowledge: str = None):
         super(GCN, self).__init__()
+
         self.input_scaler = input_scaler
         self.output_scaler = output_scaler
 
@@ -36,7 +35,18 @@ class GCN(torch.nn.Module):
 
         self.linear = nn.Linear(in_features=hidden_channels, out_features=out_channels)
 
-    def forward(self, data):
+    def scale_output(self, output: Tensor, data: Data) -> Tensor:
+        """
+        Scale the given output with the model output scaler.
+
+        :param output: Either out prediction or target of shape Nxf
+        :param data: Corresponding data batch.
+        :return: Scaled version.
+        """
+
+        return self.output_scaler(output)
+
+    def forward(self, data: Data) -> Tensor:
         out = self.input_scaler(data.x)
         out = self.graph_encoder(x=out, edge_index=data.edge_index)
         out = self.linear(out)
