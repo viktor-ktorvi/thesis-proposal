@@ -28,17 +28,13 @@ parameters:
           - 30
           - 40
 
-      jumping_knowledge:
-        values:
-          - "cat"
-          - "max"
-          - "lstm"
 command:
   - ${env}
   - ${interpreter}
   - "-m"
   - ${program}
   - model=gcn
+  - model.jumping_knowledge=null
 
-name: opf supervised gcn jumping knowledge num layers effect
+name: opf supervised gcn-no-jk num layers effect
 
