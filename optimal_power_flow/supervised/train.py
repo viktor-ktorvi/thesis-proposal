@@ -9,7 +9,6 @@ import torch_geometric as pyg
 from mlpf.data.data.optimal_power_flow import OptimalPowerFlowData
 from mlpf.data.loading.load_data import load_data
 from mlpf.utils.progress_bar import CustomProgressBar
-from mlpf.utils.standard_scaler import StandardScaler
 from omegaconf import OmegaConf
 from sklearn.model_selection import train_test_split
 from torch_geometric.loader import DataLoader
