@@ -1,34 +1,26 @@
-%! Author = todos
-%! Date = 16-Aug-23
-
-% Preamble
-\documentclass[11pt]{article}
-
-% Packages
-\usepackage{amsmath}
-\usepackage{booktabs}
-\usepackage{enumerate}
-\usepackage{hyperref}
-
-\title{SOMETHING for optimal power flow
-\\ {\Large A masters thesis proposal}}
-\author{Viktor Todosijević}
-\date{August 2023}
-
-% Document
-\begin{document}
-
-    \maketitle
-
-    \input{introduction/introduction}
-
-    \input{literature_overview/literature_overview}
-
-    \input{methodology/methodology}
-
-    \input{conclusion/conclusion}
-
-    \bibliography{main}
-    \bibliographystyle{plain}
-
+\documentclass{report}%
+\usepackage[T1]{fontenc}%
+\usepackage[utf8]{inputenc}%
+\usepackage{lmodern}%
+\usepackage{textcomp}%
+\usepackage{lastpage}%
+%
+\usepackage{amsmath}%
+\usepackage{amssymb}%
+\usepackage{hyperref}%
+\usepackage{indentfirst}%
+\usepackage[sorting=none]{biblatex}%
+\addbibresource{references.bib}%
+\title{Master thesis proposal}%
+\author{Viktor Todosijevic}%
+\date{August 2023}%
+%
+\begin{document}%
+\normalsize%
+\maketitle%
+\input{introduction/main}%
+\input{literature_overview/main}%
+\input{methodology/main}%
+\input{conclusion/main}%
+\printbibliography%
 \end{document}

@@ -1,0 +1,31 @@
+The optimal power flow problem (OPF) is a nonlinear, non convex optimization problem\cite{cain2012history, bienstock2019strong} whose algebraic formulation is dictated by a graph,
+specifically the graph representation of a power grid.
+The problem consists of three distinct parts:
+
+\begin{itemize}
+    \item the objective function - an economic cost function of the active powers produced by the generators in
+    the grid and the corresponding costs of running those generators.
+
+    \item the equality constraints - representing the physical law of conservation of energy.
+
+    \item the inequality constraints - representing the technical limitations of running the grid which dictate that
+    the voltages and powers of specific nodes in the grid must be within some predefined ranges.
+\end{itemize}
+
+\noindent The problem boils down to minimizing the operating cost while fulfilling the physical and technical constraints.
+The mathematical formulation, keeping in mind that $\boldsymbol{\underline{V}} = \boldsymbol{V}e^{j\boldsymbol{\theta}}$, is the following:
+\begin{equation}
+    \begin{aligned}
+        \min_{\boldsymbol{P}} \quad & f(\boldsymbol{P}; \boldsymbol{c})\\% \sum_{i=0}^{N - 1} f(P_i; c_i) \\
+        \textrm{s.t.} %\quad & -P_i \ +  \sum_{j=0}^{N - 1} |V_i||V_j|\left(G_{ij} \cos \theta_{ij} + B_{ij} \sin \theta_{ij}\right) = 0 \qquad \forall i \in [0, N - 1]\\
+        % \quad & -Q_i \ + \sum_{j=0}^{N - 1} |V_i||V_j|\left(G_{ij} \sin \theta_{ij} - B_{ij} \cos \theta_{ij}\right) = 0 \qquad \forall i \in [0, N - 1]\\
+        \quad & \boldsymbol{P} + j\boldsymbol{Q} = \underline{\boldsymbol{V}} \cdot \left(\underline{\boldsymbol{Y}}\underline{\boldsymbol{V}}\right)^*\\ \\
+        \quad & \boldsymbol{V_{min}} \leq \boldsymbol{V} \leq \boldsymbol{V_{max}} \\
+        \quad & \boldsymbol{P_{min}} \leq \boldsymbol{P} \leq \boldsymbol{P_{max}} \\
+        \quad & \boldsymbol{Q_{min}} \leq \boldsymbol{Q} \leq \boldsymbol{Q_{max}}
+    \end{aligned}
+\end{equation}
+
+\noindent where $\boldsymbol{P}$, $\boldsymbol{Q}$, $\boldsymbol{V}$, $\boldsymbol{\theta}$ are vectors containing the active powers, reactive powers, voltage magnitudes and voltage angles, respectively, for each node in the grid and  $\boldsymbol{P_{min}}$, $\boldsymbol{P_{max}}$, $\boldsymbol{Q_{min}}$, $\boldsymbol{Q_{max}}$, $\boldsymbol{V_{min}}$, $\boldsymbol{V_{max}}$ are the corresponding constraints of the physical variables. The matrix $\boldsymbol{\underline{Y}}$ is called the admittance matrix of the grid and represents a weighted adjacency matrix of the graph because the entry $\boldsymbol{\underline{Y}}_{ij}$ is equal to zero where there is no connection between nodes $i$ and $j$ and contains physical properties of the line between the two otherwise. The function $f$ parameterized by $\boldsymbol{c}$ is an arbitrary cost function but is often a polynomial i.e. $$f(\boldsymbol{P}; \boldsymbol{c}) = \sum_{i=0}^{N - 1} \sum_{k=0}^n c_{ik}P_i^k$$
+
+\noindent where $N$ is the number of the nodes in the grid and $n$ is the degree of the polynomial.
