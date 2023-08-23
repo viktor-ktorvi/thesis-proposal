@@ -17,17 +17,17 @@ Follow login instructions.
 Train a linear model:
 
 ```
-python -m optimal_power_flow.supervised.mlp.train model=linear
+python -m optimal_power_flow.supervised.train model=linear
 ```
 
 Train a GCN:
 
 ```
-python -m optimal_power_flow.supervised.gnn.train model=gcn
+python -m optimal_power_flow.supervised.train model=gcn
 ```
 
 Run a wandb sweep:
 
 ```
-wandb sweep .\optimal_power_flow\supervised\sweep_configs\linear.yaml
+wandb sweep ./optimal_power_flow/supervised/sweep_configs/gcn.yaml
 ```
