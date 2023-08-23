@@ -10,7 +10,11 @@ def main():
     problem_formulation = Subsection("Problem formulation", numbering=False)
     problem_formulation.append(Command("input", "introduction/problem_formulation"))
 
+    motivation = Subsection("Motivation", numbering=False)
+    motivation.append(Command("input", "introduction/motivation"))
+
     introduction.append(problem_formulation)
+    introduction.append(motivation)
     with open(os.path.join(current_directory, "main.tex"), "w") as f:
         f.write(introduction.dumps())
 
