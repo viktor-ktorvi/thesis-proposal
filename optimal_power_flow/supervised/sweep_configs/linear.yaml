@@ -1,5 +1,5 @@
 project: thesis-proposal
-program: optimal_power_flow.supervised.mlp.train
+program: optimal_power_flow.supervised.train
 method: grid
 
 # how to structure the hierarchy: https://community.wandb.ai/t/nested-sweep-configuration/3369/2
