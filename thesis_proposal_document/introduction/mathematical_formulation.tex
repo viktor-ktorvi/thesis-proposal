@@ -1,20 +1,6 @@
-The optimal power flow problem (OPF) is a nonlinear, non convex optimization problem\cite{cain2012history, bienstock2019strong} whose algebraic formulation is dictated by a graph,
-specifically the graph representation of a power grid.
-The problem consists of three distinct parts:
-
-\begin{itemize}
-    \item the objective function - an economic cost function of the active powers produced by the generators in
-    the grid and the corresponding costs of running those generators.
-
-    \item the equality constraints - representing the physical law of conservation of energy.
-
-    \item the inequality constraints - representing the technical limitations of running the grid which dictate that
-    the voltages and powers of specific nodes in the grid must be within some predefined ranges.
-\end{itemize}
-
-\noindent The problem boils down to minimizing the operating cost while fulfilling the physical and technical constraints.
 The mathematical formulation, keeping in mind that $\boldsymbol{\underline{V}} = \boldsymbol{V}e^{j\boldsymbol{\theta}}$, is the following:
 \begin{equation}
+    \label{eq:opf_formulation}
     \begin{aligned}
         \min_{\boldsymbol{P}} \quad & f(\boldsymbol{P}; \boldsymbol{c})\\% \sum_{i=0}^{N - 1} f(P_i; c_i) \\
         \textrm{s.t.} %\quad & -P_i \ +  \sum_{j=0}^{N - 1} |V_i||V_j|\left(G_{ij} \cos \theta_{ij} + B_{ij} \sin \theta_{ij}\right) = 0 \qquad \forall i \in [0, N - 1]\\
@@ -26,13 +12,13 @@ The mathematical formulation, keeping in mind that $\boldsymbol{\underline{V}} =
     \end{aligned}
 \end{equation}
 
-\noindent where, for a grid containing $N$ nodes, $\boldsymbol{P}, \boldsymbol{Q}, \boldsymbol{V}, \boldsymbol{\theta} \in \mathbb{R}^N$ are vectors containing the
+\noindent where, for a grid consisting of $N$ nodes, $\boldsymbol{P}, \boldsymbol{Q}, \boldsymbol{V}, \boldsymbol{\theta} \in \mathbb{R}^N$ are vectors containing the
 active and reactive powers and voltage magnitudes and angles, respectively, for each node and
-$\boldsymbol{P}_{min}, \boldsymbol{P}_{max}, \boldsymbol{Q}_{max}, \boldsymbol{Q}_{max}, \boldsymbol{V}_{min}, \boldsymbol{V}_{max} \in \mathbb{R}^N$
+$\boldsymbol{P}_{min}, \boldsymbol{P}_{max}, \boldsymbol{Q}_{min}, \boldsymbol{Q}_{max}, \boldsymbol{V}_{min}, \boldsymbol{V}_{max} \in \mathbb{R}^N$
 are the corresponding technical constraints of the physical variables.
 The matrix $\boldsymbol{\underline{Y}} \in \mathbb{C}^{N \times N}$ is called the admittance matrix
 of the grid and represents a weighted adjacency matrix of the graph because the entry $\boldsymbol{\underline{Y}}_{ij}$ is equal
-to zero where there is no connection between nodes $i$ and $j$ and contains physical properties of the line between the two otherwise.
+to zero where there is no connection between nodes $i$ and $j$, and contains physical properties of the line between the two otherwise.
 The function $f$ parameterized by $\boldsymbol{c}$ is an arbitrary cost function but is often a polynomial i.e.
 \[f(\boldsymbol{P}; \boldsymbol{c}) = \sum_{i=0}^{N - 1} \sum_{k=0}^n c_{ik}P_i^k\]
 

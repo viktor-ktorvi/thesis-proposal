@@ -1,0 +1,15 @@
+The optimal power flow problem (OPF) is a nonlinear, non-convex optimization problem\cite{cain2012history, bienstock2019strong} whose algebraic formulation is dictated by a graph,
+specifically the graph representation of a power grid.
+The most basic formulation of the problem consists of three distinct parts:
+
+\begin{itemize}
+    \item the objective function - an economic cost function of the active powers produced by the generators in
+    the grid and the corresponding costs of running those generators.
+
+    \item the equality constraints - representing the physical law of conservation of energy.
+
+    \item the inequality constraints - representing the technical limitations of running the grid which dictate that
+    the voltages and powers of specific nodes(buses) must be within some predefined ranges.
+\end{itemize}
+
+\noindent The problem boils down to minimizing the operating cost while fulfilling the physical and technical constraints.

@@ -1,11 +1,29 @@
 \subsection*{Introduction}%
 \label{subsec:Introduction}%
-\subsection*{Problem formulation}%
-\label{subsec:Problemformulation}%
-\input{introduction/problem\_formulation}
+\input{introduction/basic\_problem\_statement}%
+\input{introduction/motivation}%
+\input{introduction/mathematical\_formulation}%
+\newline%
+\newline%
+\input{introduction/node\_types\_and\_masks}%
+\newline%
+\newline%
 
-%
-\subsection*{Motivation}%
-\label{subsec:Motivation}%
-\input{introduction/motivation}
+
+\begin{table}[h]%
+    \centering%
+    \begin{tabular}{|c|c|c|c|c|}%
+        \hline%
+        Node type & P & Q & V & $\theta$ \\%
+        \hline%
+        Slack     & 0 & 0 & 1 & 1        \\%
+        \hline%
+        PQ        & 1 & 1 & 0 & 0        \\%
+        \hline%
+        PVAR      & 0 & 0 & 0 & 0        \\%
+        \hline%
+    \end{tabular}%
+    \caption{Value mask in relation to the node type.}%
+    \label{tab:nodemasks}%
+\end{table}
 

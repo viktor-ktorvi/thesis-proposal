@@ -1,0 +1,6 @@
+Of the values in the vectors $\boldsymbol{P}, \boldsymbol{Q}, \boldsymbol{V}$ and $\boldsymbol{\theta}$,
+which, along with the admittance matrix, fully describe the state of a grid, not all are variables in the optimization problem.
+In fact, some are fixed, and which value is fixed and which isn't is determined on the node level by the type of node the value belongs to.
+Nodes can be one of three types: Slack(reference), PQ and PVAR.
+\ref{tab:nodemasks} contains the binary masks for each node type and value where $1$ indicates a fixed quantity and $0$
+indicates a variable in the optimization problem.
