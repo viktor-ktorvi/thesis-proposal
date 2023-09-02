@@ -4,11 +4,11 @@ import pickle
 from pathlib import Path
 from tqdm import tqdm
 
-name = "20230808_OPF__lv_grid_403634__mt_mvl_400V_20kV_t35040"
+name = "20230823_OPF__path_lv_sample2__mt_mvl_400V_20kV_t350"
 
-path = os.path.join("datasets", name, "Train")
+path = os.path.join("datasets", name)
 
-new_path = os.path.join(name + "_just_opf")
+new_path = os.path.join("datasets", name + "_just_opf")
 Path(new_path).mkdir(parents=True, exist_ok=True)
 
 pickle_filenames = os.listdir(path)
