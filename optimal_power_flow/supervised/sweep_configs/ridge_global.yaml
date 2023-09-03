@@ -1,0 +1,27 @@
+project: thesis-proposal
+program: optimal_power_flow.supervised.sklearn.train
+method: grid
+
+# how to structure the hierarchy: https://community.wandb.ai/t/nested-sweep-configuration/3369/2
+
+parameters:
+  model:
+    parameters:
+      alpha:
+        values:
+          - 3.0e-5
+          - 3.0e-4
+          - 3.0e-3
+          - 3.0e-2
+          - 3.0e-1
+
+
+command:
+  - ${env}
+  - ${interpreter}
+  - "-m"
+  - ${program}
+  - model=ridge
+
+name: opf supervised ridge global with R2
+

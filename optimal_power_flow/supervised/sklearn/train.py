@@ -3,6 +3,8 @@ import os
 import random
 
 import numpy as np
+import wandb
+from omegaconf import OmegaConf
 
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
@@ -24,6 +26,11 @@ from models.sklearn.get_model import get_model
 
 @hydra.main(version_base=None, config_path=os.path.join(os.getcwd(), "configs"), config_name="default")
 def main(cfg):
+    wandb.init(project=cfg.wandb.project, mode=cfg.wandb.mode)
+
+    cfg = OmegaConf.merge(cfg, dict(wandb.config))
+    wandb.config.update({"config": OmegaConf.to_container(cfg, resolve=True, throw_on_missing=True)}, allow_val_change=True)
+
     # Random seeds
     np.random.seed(cfg.general.random_seed)
     random.seed(cfg.general.random_seed)
@@ -66,6 +73,8 @@ def main(cfg):
         LowerReactivePowerError()
     )
 
+    # TODO potentially have the same thing for train/
+
     for i in tqdm(range(predictions_val.shape[0]), desc="Calculating metrics"):
         power_metrics.update(predictions_val[i], data_val[i])
 
@@ -73,6 +82,16 @@ def main(cfg):
 
     description = power_metrics.compute().describe()
     description = format_description(description, power_metrics)
+
+    log = {}
+    aggregation = "mean"
+    metric_dir = "val"
+    log[f"{metric_dir}/r2 score"] = model.score(features_val, targets_val)
+    for metric_name in description.index:
+        unit = description["unit"][metric_name]
+        log[f"{metric_dir}/{aggregation} {metric_name.strip()} {unit.strip()}"] = description[aggregation][metric_name]
+
+    wandb.log(log)
 
     print(description)
 
